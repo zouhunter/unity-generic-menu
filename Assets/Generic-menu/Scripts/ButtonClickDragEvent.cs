@@ -3,45 +3,48 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
-
-[ RequireComponent(typeof(Button))]
-public class ButtonClickDragEvent : MonoBehaviour, IPointerDownHandler
+namespace Menu_Generic
 {
-    Vector3 m_PressDownPos;
-    Vector3 m_CurrentMousePos;
-
-    bool m_Pressed = false;
-
-    [System.Serializable]
-    public class FloatEvent : UnityEvent<float> { }
-    public FloatEvent OnDragUpdate;
-
-    void Update()
+    [RequireComponent(typeof(Button))]
+    public class ButtonClickDragEvent : MonoBehaviour, IPointerDownHandler
     {
-        if( m_Pressed && Input.GetMouseButtonUp( 0 ) )
+        Vector3 m_PressDownPos;
+        Vector3 m_CurrentMousePos;
+
+        bool m_Pressed = false;
+
+        [System.Serializable]
+        public class FloatEvent : UnityEvent<float> { }
+        public FloatEvent OnDragUpdate;
+
+        void Update()
         {
-            Unclick();
+            if (m_Pressed && Input.GetMouseButtonUp(0))
+            {
+                Unclick();
+            }
+            else if (m_Pressed)
+            {
+                m_CurrentMousePos = Input.mousePosition;
+                float distance = m_PressDownPos.x - m_CurrentMousePos.x;
+                distance /= Screen.width;
+
+                print("Drag value: " + distance);
+                OnDragUpdate.Invoke(distance);
+            }
         }
-        else if( m_Pressed )
+
+        public void OnPointerDown(PointerEventData eventData)
         {
-            m_CurrentMousePos = Input.mousePosition;
-            float distance = m_PressDownPos.x - m_CurrentMousePos.x;
-            distance /= Screen.width;
+            Debug.Log(this.gameObject.name + " Was click drag started.");
+            m_PressDownPos = Input.mousePosition;
+        }
 
-            print("Drag value: " + distance);
-            OnDragUpdate.Invoke(distance);
+
+        void Unclick()
+        {
+            m_Pressed = false;
         }
     }
 
-    public void OnPointerDown(PointerEventData eventData)
-    {
-         Debug.Log(this.gameObject.name + " Was click drag started.");
-        m_PressDownPos = Input.mousePosition;
-    }
-       
-
-    void Unclick()
-    {
-        m_Pressed = false;
-    }
 }
