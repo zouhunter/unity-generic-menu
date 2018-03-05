@@ -91,7 +91,7 @@ namespace Menu_Generic
 
         public bool m_HideInactive = false;
 
-        void Start()
+        void Awake()
         {
             MainButton = GetComponent<Button>();
             m_MenuText = GetComponentInChildren<Text>();
@@ -208,10 +208,10 @@ namespace Menu_Generic
             m_MenuText.color = fontCol;
         }
 
-        public void AddSlider(string name, float rangeMin, float rangeMax, float initialValue, UnityAction<object> onSlider)
+        public void AddSlider(string name, float rangeMin, float rangeMax, float initialValue, UnityAction<float> onSlider)
         {
             RadialSlider slider = Instantiate(m_SliderPrefab);
-            slider.Init(this, name, onSlider);
+            slider.Init(this, name, (x)=> { if (onSlider != null) onSlider.Invoke((float)x); });
             slider.m_Range = new Vector2(rangeMin, rangeMax);
             slider.ScaledVal = initialValue;
             slider.m_Text.text = name;
@@ -223,11 +223,10 @@ namespace Menu_Generic
             foreach (RadialMenuObject menuObj in m_MenuObjects)
                 menuObj.SetPallette(m_FGCol, m_BGCol, m_HLCol, m_TextCol);
         }
-
-        public void AddList(string name, string[] names, UnityAction<object> onSelect)
+        public void AddList(string name, string[] names, UnityAction<int> onSelect)
         {
             RadialList list = Instantiate(m_ListPrefab);
-            list.Init(this, name, onSelect);
+            list.Init(this, name, (x) => { if (onSelect != null) onSelect.Invoke((int)x); });
             list.GenerateMenu(name, names);
             list.transform.SetParent(m_RadLayout.transform);
 
@@ -378,7 +377,7 @@ namespace Menu_Generic
 
         public void ActivateMenu()
         {
-            //print("Menu activated");
+            print("Menu activated");
 
             for (int i = 0; i < m_MenuObjects.Count; i++)
             {
