@@ -3,9 +3,10 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using System;
 
 [ RequireComponent(typeof(Button))]
-public class RadialSlider1 : RadialMenuObject, IPointerDownHandler
+public class RadialSlider : RadialMenuObject, IPointerDownHandler
 {
     Vector3 m_PressDownPos;
     Vector3 m_CurrentMousePos;
@@ -74,16 +75,20 @@ public class RadialSlider1 : RadialMenuObject, IPointerDownHandler
 
     public override void CallFunction()
     {
+        base.CallFunction();
         OnDragUpdate.Invoke(m_ScaledVal);
-
-        if (m_ObjectToCall != null)
-            m_ObjectToCall.SendMessage( m_FunctionToCall, m_ScaledVal );
     }
-
+    protected override object CallBackData
+    {
+        get
+        {
+            return m_ScaledVal;
+        }
+    }
     public override void OnPointerDown(PointerEventData eventData)
     {
         m_RadMenu.SetSelectedMenuObject(this);
-        Debug.Log(this.gameObject.name + " Was click drag started.");
+        //Debug.Log(this.gameObject.name + " Was click drag started.");
         m_Pressed = true;
         m_PressDownPos = Input.mousePosition;
         m_PreNormVal = m_NormalizedVal;

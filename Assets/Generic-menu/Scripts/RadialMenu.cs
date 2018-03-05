@@ -1,24 +1,4 @@
-﻿/*
-Radial Menu by XY01 (Brad Hammond) - http://www.XY01.net
-Copyright (c) 2015
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -26,27 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-/// <summary>
-/// Radial Menu
-///  - Pass in array of strings to populate the menu
-///  - Fires event with index of selected element
-///  
-/// TODO:
-///  - Clean up messy code
-///  - Take pictures instead of strings
-///  - Comment code
-///  - Make so you can populate in editor with buttons that can have individual events
-///  
-///  RadialMenuObjects 
-///      
-/// 
-/// CreateMenu ( 
-/// sliderX( objectToCall, funtionsToCall, min, max, startval ),
-/// toggle( objectToCall, funtionsToCall, initialBool ),
-/// button( objectToCall, funtionsToCall )
-/// }
-/// </summary>
-/// 
 public class RadialMenu : MonoBehaviour, IPointerDownHandler
 {
     enum State
@@ -66,7 +25,7 @@ public class RadialMenu : MonoBehaviour, IPointerDownHandler
     // Prefab buttons that will populate the menu
     public RectTransform m_DefaultMenuObject;
 
-    public RadialSlider1    m_SliderPrefab;
+    public RadialSlider    m_SliderPrefab;
     public RadialMenuObject m_ButtonPrefab;
     public RadialMenuObject m_TogglePrefab;
     public RadialList       m_ListPrefab;
@@ -83,8 +42,7 @@ public class RadialMenu : MonoBehaviour, IPointerDownHandler
     Text m_MenuText;
 
     // Main menu button
-    Button MainButton;
-
+    protected Button MainButton;
 
     // List of buttons
     public List<RadialMenuObject> m_MenuObjects = new List<RadialMenuObject>();
@@ -129,8 +87,6 @@ public class RadialMenu : MonoBehaviour, IPointerDownHandler
     public SelectionEvent[] OnSelectedEvents;
        
     GameObject m_ObjectToMessage;
-    string m_FunctionCall;
-
 
     public bool m_HideInactive = false;
 
@@ -251,10 +207,10 @@ public class RadialMenu : MonoBehaviour, IPointerDownHandler
         m_MenuText.color = fontCol;
     }
 
-    public void AddSlider( string name, GameObject objectToCall, string functionToCall, float rangeMin, float rangeMax, float initialValue )
+    public void AddSlider(string name, float rangeMin, float rangeMax, float initialValue,UnityAction<object> onSlider)
     {
-        RadialSlider1 slider = Instantiate( m_SliderPrefab );
-        slider.Init(this,name, objectToCall, functionToCall);
+        RadialSlider slider = Instantiate( m_SliderPrefab );
+        slider.Init(this,name, onSlider);
         slider.m_Range = new Vector2(rangeMin, rangeMax);
         slider.ScaledVal = initialValue;
         slider.m_Text.text = name;
@@ -267,10 +223,10 @@ public class RadialMenu : MonoBehaviour, IPointerDownHandler
             menuObj.SetPallette(m_FGCol, m_BGCol, m_HLCol, m_TextCol);
     }
 
-    public void AddList(string name, GameObject objectToCall, string functionToCall, string[] names )
+    public void AddList(string name,string[] names, UnityAction<object> onSelect)
     {
         RadialList list = Instantiate(m_ListPrefab);
-        list.Init(this,name, objectToCall, functionToCall);
+        list.Init(this,name, onSelect);
         list.GenerateMenu(name, names);
         list.transform.SetParent(m_RadLayout.transform);
 
@@ -415,13 +371,13 @@ public class RadialMenu : MonoBehaviour, IPointerDownHandler
         else if( m_State == State.Active )
         {
             DeactivateMenu();
-            print("here");
+            //print("here");
         }
     }
     
     public void ActivateMenu()
     {
-        print("Menu activated");
+        //print("Menu activated");
 
         for (int i = 0; i < m_MenuObjects.Count; i++)
         {
@@ -438,8 +394,6 @@ public class RadialMenu : MonoBehaviour, IPointerDownHandler
         if (m_OptionSelected)
         {
             OnSelected.Invoke(m_SelectedIndex);
-            if( m_ObjectToMessage != null )
-                m_ObjectToMessage.SendMessage(m_FunctionCall, m_SelectedIndex);
         }
 
         m_State = State.Deactivating;
@@ -447,7 +401,7 @@ public class RadialMenu : MonoBehaviour, IPointerDownHandler
         if ( !m_DisplaySelectedName )
             m_MenuText.text = m_MenuName;
 
-        print("Deactivating,    Name set to : " + m_MenuText.text);
+        //print("Deactivating,    Name set to : " + m_MenuText.text);
 
         m_TargetRadius = 0;
     }

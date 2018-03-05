@@ -4,13 +4,10 @@ using System.Collections;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class RadialMenuObject : MonoBehaviour, IPointerDownHandler
+public abstract class RadialMenuObject : MonoBehaviour, IPointerDownHandler
 {
-    public string       m_ObjectName;
-    public GameObject   m_ObjectToCall;
-    public string       m_FunctionToCall;
-
-    float m_Fade;
+    public string  m_ObjectName;
+    protected float m_Fade;
 
     public Image[] m_FGImages;
     public Image[] m_BGImages;
@@ -23,14 +20,14 @@ public class RadialMenuObject : MonoBehaviour, IPointerDownHandler
     public Color m_TextCol;
 
     protected RadialMenu m_RadMenu;
+    protected UnityAction<object> onSelect;
+    protected abstract object CallBackData { get; }
 
-
-    public virtual void Init(  RadialMenu radMenu, string name, GameObject objectToCall, string functionToCall )
+    public virtual void Init(RadialMenu radMenu, string name, UnityAction<object> onSelect)
     {
         m_RadMenu = radMenu;
         m_ObjectName = name;
-        m_ObjectToCall = objectToCall;
-        m_FunctionToCall = functionToCall;
+        this.onSelect = onSelect;
     }
 
     public void SetPallette( Color fgCol, Color bgCol, Color hlCol, Color textCol )
@@ -46,7 +43,7 @@ public class RadialMenuObject : MonoBehaviour, IPointerDownHandler
     public void Fade( float fade )
     {
         m_Fade = fade;
-        print(name + "Fade set too: " + fade);
+        //print(name + "Fade set too: " + fade);
 
         m_FGCol.a = fade;
         m_BGCol.a = fade;
@@ -80,5 +77,9 @@ public class RadialMenuObject : MonoBehaviour, IPointerDownHandler
     public virtual void CallFunction()
     {
         // do what ever the object does here
+        if(onSelect != null)
+        {
+            onSelect.Invoke(CallBackData);
+        }
     }
 }

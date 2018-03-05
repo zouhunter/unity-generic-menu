@@ -1,44 +1,11 @@
-﻿/*
-Radial Menu by XY01 (Brad Hammond) - http://www.XY01.net
-Copyright (c) 2015
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
-
-/// <summary>
-/// Radial Menu
-///  - Pass in array of strings to populate the menu
-///  - Fires event with index of selected element
-///  
-/// TODO:
-///  - Clean up messy code
-///  - Take pictures instead of strings
-///  - Comment code
-///  - Make so you can populate in editor with buttons that can have individual events
-///  
-/// </summary>
-/// 
 [RequireComponent(typeof(Button))]
 public class RadialList : RadialMenuObject, IPointerDownHandler
 {
@@ -145,7 +112,6 @@ public class RadialList : RadialMenuObject, IPointerDownHandler
         SetButtonSize(m_ButtonSizeMain, m_ButtonSizeChild);
 
 	}
-
     void Update()
     {
         AdjustAngleBasedOnScreenPos();
@@ -356,7 +322,7 @@ public class RadialList : RadialMenuObject, IPointerDownHandler
             image.color = currentCol;
 
             Text text = m_MenuObjects[i].GetComponentInChildren<Text>();
-            Color textCol = m_MenuObjects[i].GetComponentInChildren<Text>().color;
+            Color textCol = text.color;
             textCol.a = fade;
             m_MenuObjects[i].GetComponentInChildren<Text>().color = textCol;
                       
@@ -394,13 +360,13 @@ public class RadialList : RadialMenuObject, IPointerDownHandler
         if (m_State == State.Deactivated || m_State == State.Deactivating)
         {
             ActivateMenu();
-            Debug.Log(this.gameObject.name + " Was Clicked.");
+            //Debug.Log(this.gameObject.name + " Was Clicked.");
         }
     }
     
     public void ActivateMenu()
     {
-        print("Menu activated");
+        //print("Menu activated");
 
         for (int i = 0; i < m_ButtonsNames.Length; i++)
         {
@@ -424,7 +390,7 @@ public class RadialList : RadialMenuObject, IPointerDownHandler
         if ( !m_DisplaySelectedName )
             m_MenuText.text = m_MenuName;
 
-        print("Deactivating,    Name set to : " + m_MenuText.text);
+        //print("Deactivating,    Name set to : " + m_MenuText.text);
 
         Disengage();
 
@@ -433,11 +399,10 @@ public class RadialList : RadialMenuObject, IPointerDownHandler
 
     public override void CallFunction()
     {
+        base.CallFunction();
         if (m_OptionSelected)
         {
             OnSelected.Invoke(m_SelectedIndex);
-            if (m_ObjectToCall != null)
-                m_ObjectToCall.SendMessage( m_FunctionToCall, m_SelectedIndex);
         }
     }
 
@@ -453,6 +418,13 @@ public class RadialList : RadialMenuObject, IPointerDownHandler
         newBtn.name = "Rad Btn " + m_MenuObjects.Count;
 
         return newBtn;
+    }
+    protected override object CallBackData
+    {
+        get
+        {
+            return m_SelectedIndex;
+        }
     }
 
     void OnDrawGizmos()
